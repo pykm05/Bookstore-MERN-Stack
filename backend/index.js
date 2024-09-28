@@ -27,7 +27,7 @@ app.post('/test', async (request, response) => {
 
 // Route for Save a new Book
 // multiple async functions can run at once
-// await pauses execution and allows other tasks to run
+// await pauses execution and allows othertasks to run
 app.post('/books', async (request, response) => {
     try {
         if (
@@ -56,17 +56,17 @@ app.post('/books', async (request, response) => {
     }
 });
 
-// Route for Get All Books from database
-app.get('/books', async (request, response) => {
+// Route for Get One Book from database
+app.get('/books/:id', async (request, response) => {
     try {
+
+        const { id } = request.params;
+
         // wait pauses function execution until fetch rquest completes
-        const books = await Book.find({});
+        const book = await Book.findById(id);
 
         // .json() sends items inside parenthesis to client
-        return response.status(200).json({
-            count: books.length,
-            data: books
-        });
+        return response.status(200).json(book);
     } catch (error) {
         console.log(error.message);
         response.status(500).send({ message: error.message });
