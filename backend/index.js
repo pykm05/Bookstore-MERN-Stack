@@ -1,6 +1,7 @@
 import express from "express";
 import { PORT, mongoDBURL } from "./config.js";
 import mongoose from 'mongoose';
+import { Book } from './models/bookModel.js'
 
 // npm run dev
 
@@ -9,12 +10,67 @@ import mongoose from 'mongoose';
 // middleware: bridge between os/database and application
 const app = express();
 
+app.use(express.json());
+
 // creates new http route
 // http route: function that runs when a url is visited
-// respond with 'welcome to my world' when a GET request is made to homepage
+// respond with 'new user joined' when a GET request is made to homepage
 app.get('/', (request, response) => {
     // console.log(request)
+    console.log('new user joined')
     return response.status(234).send('Welcome to my world');
+});
+
+app.post('/test', async (request, response) => {
+    response.send('hi');
+})
+
+// Route for Save a new Book
+// multiple async functions can run at once
+// await pauses execution and allows other tasks to run
+app.post('/books', async (request, response) => {
+    try {
+        if (
+            !request.body.title ||
+            !request.body.author ||
+            !request.body.publishYear
+        ) {
+            return response.status(400).send({
+                message: 'Send all required fields: title, author, publisYear',
+            });
+        }
+        const newBook = {
+            title: request.body.title,
+            author: request.body.author,
+            publishYear: request.body.publishYear,
+        };
+
+        const book = await Book.create(newBook);
+
+        // must make a return statement
+        return response.status(201).send(book);
+
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({ message: error.message });
+    }
+});
+
+// Route for Get All Books from database
+app.get('/books', async (request, response) => {
+    try {
+        // wait pauses function execution until fetch rquest completes
+        const books = await Book.find({});
+
+        // .json() sends items inside parenthesis to client
+        return response.status(200).json({
+            count: books.length,
+            data: books
+        });
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({ message: error.message });
+    }
 });
 
 mongoose
