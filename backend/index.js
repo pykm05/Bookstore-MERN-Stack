@@ -21,12 +21,9 @@ app.get('/', (request, response) => {
     return response.status(234).send('Welcome to my world');
 });
 
-app.post('/test', async (request, response) => {
-    response.send('hi');
-})
-
 // Route for Update a Book
-// Put method updates a resource
+// Async functions return promises
+// promises 
 app.put('/books/:id', async (request, response) => {
     try {
         if (
@@ -41,6 +38,7 @@ app.put('/books/:id', async (request, response) => {
 
         const { id } = request.params;
 
+        // await pauses the async function until the method call returns
         const result = await Book.findByIdAndUpdate(id, request.body);
 
         if (!result) {
@@ -57,7 +55,7 @@ app.put('/books/:id', async (request, response) => {
 
 // Route for Save a new Book
 // multiple async functions can run at once
-// await pauses execution and allows othertasks to run
+// await pauses execution and allows other tasks to run
 app.post('/books', async (request, response) => {
     try {
         if (
@@ -78,6 +76,7 @@ app.post('/books', async (request, response) => {
         const book = await Book.create(newBook);
 
         // must make a return statement
+        // sends response to Express app
         return response.status(201).send(book);
 
     } catch (error) {
@@ -97,6 +96,26 @@ app.get('/books/:id', async (request, response) => {
 
         // .json() sends items inside parenthesis to client
         return response.status(200).json(book); 
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({ message: error.message });
+    }
+});
+
+// Route to delete an existing book
+app.delete('/books/:id', async (request, response) => {
+    try {
+        const { id } = request.params;
+
+        // Look for book in database and delete
+        const result = await Book.findByIdAndDelete(id);
+
+        if (!result) {
+            return response.status(404).json({ message: 'Book not found' });
+        }
+
+        return response.status(200).send({ message: 'Book deleted successfully' });
+
     } catch (error) {
         console.log(error.message);
         response.status(500).send({ message: error.message });
