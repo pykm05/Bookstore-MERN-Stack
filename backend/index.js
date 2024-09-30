@@ -25,6 +25,36 @@ app.post('/test', async (request, response) => {
     response.send('hi');
 })
 
+// Route for Update a Book
+// Put method updates a resource
+app.put('/books/:id', async (request, response) => {
+    try {
+        if (
+            !request.body.title ||
+            !request.body.author ||
+            !request.body.publishYear
+        ) {
+            return response.status(400).send({
+                message: 'Send all required fields: title, author, publishYear',
+            });
+        }
+
+        const { id } = request.params;
+
+        const result = await Book.findByIdAndUpdate(id, request.body);
+
+        if (!result) {
+            return response.status(404).json({ message: 'Book not found' });
+        }
+
+        return response.status(200).send({ message: 'Book updated successfully'});
+
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({ message: error.message });
+    }
+})
+
 // Route for Save a new Book
 // multiple async functions can run at once
 // await pauses execution and allows othertasks to run
@@ -36,7 +66,7 @@ app.post('/books', async (request, response) => {
             !request.body.publishYear
         ) {
             return response.status(400).send({
-                message: 'Send all required fields: title, author, publisYear',
+                message: 'Send all required fields: title, author, publishYear',
             });
         }
         const newBook = {
@@ -66,7 +96,7 @@ app.get('/books/:id', async (request, response) => {
         const book = await Book.findById(id);
 
         // .json() sends items inside parenthesis to client
-        return response.status(200).json(book);
+        return response.status(200).json(book); 
     } catch (error) {
         console.log(error.message);
         response.status(500).send({ message: error.message });
