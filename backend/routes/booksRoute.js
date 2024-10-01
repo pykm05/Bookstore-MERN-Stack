@@ -114,3 +114,5 @@ router.put('/books/:id', async (request, response) => {
         response.status(500).send({ message: error.message });
     }
 });
+
+export default router;
